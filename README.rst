@@ -23,7 +23,7 @@ EDA Studio
 Exploratory Data Analysis
 
 
-* Free software: MIT license
+* Free software: 3-clause BSD license
 * Documentation: https://eda-studio.readthedocs.io.
 
 
@@ -34,8 +34,29 @@ Features
 
 Credits
 -------
+This application uses Open Source components. You can find the source code 
+of their open source projects along with license information below. We 
+acknowledge and are grateful to these developers for their inspiration and
+contributions to open source. 
 
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+Project: The pandas project  
+ * Home: https://pandas.pydata.org/   
+ * Github: https://github.com/pandas-dev/pandas   
+ * Copyright (c) 2008-2012, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development Team. All rights reserved.    
+ * License: BSD 3-Clause https://github.com/pandas-dev/pandas/blob/master/LICENSE
 
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+Project: scikit-learn
+  * Home: https://scikit-learn.org/stable/  
+  * Github: https://github.com/scikit-learn/scikit-learn
+  * Copyright (c) 2007–2019 The scikit-learn developers. All rights reserved.   
+  * License: New BSD License https://github.com/scikit-learn/scikit-learn/blob/master/COPYING  
+
+Project: SciPy    
+  * Home: https://www.scipy.org/     
+  * Github: https://github.com/scipy/scipy    
+  * Copyright (c) 2003-2019 SciPy Developers. All rights reserved.    
+  * License: BSD 3-Clause https://github.com/scipy/scipy/blob/master/LICENSE.txt
+
+References
+----------
+

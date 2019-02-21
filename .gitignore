@@ -109,6 +109,14 @@ ENV/
 # Planning directory
 /planning
 
-# VS Code Workspace
-*.code-workspace
-.vscode/
+# Bibtex files
+/docs/bayesian.bib
+/docs/Health.bib
+/docs/ISL.bib
+/docs/Machine Learning.bib
+/docs/NLP.bib
+/docs/references.bib
+/docs/xmar.bib
+
+# Data Files
+/data

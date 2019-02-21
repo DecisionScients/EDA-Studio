@@ -12,6 +12,7 @@ Welcome to EDA Studio's documentation!
    contributing
    authors
    history
+   bibliography
 
 Indices and tables
 ==================

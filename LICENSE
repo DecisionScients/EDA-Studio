@@ -1,22 +1,67 @@
-MIT License
+BSD License
 
 Copyright (c) 2019, John James
+All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+* Redistributions in binary form must reproduce the above copyright notice, this
+  list of conditions and the following disclaimer in the documentation and/or
+  other materials provided with the distribution.
+
+* Neither the name of the copyright holder nor the names of its
+  contributors may be used to endorse or promote products derived from this
+  software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Open Source Disclosure
+Effective date: February 20, 2019
+
+This package includes third-party code licensed for use and redistribution 
+under open-source licenses. Below is a list of disclosures and disclaimers in 
+connection with use of open-source licensed software. 
+
+This list of open-source code was compiled with reference to third-party 
+software as of the date the list was generated. This list may be updated from
+time to time and may not be complete. ALL INFORMATION HERE IS PROVIDED 
+"AS IS." NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED, WITH REGARD
+TO THIS LIST OR ITS ACCURACY OR COMPLETENESS, OR WITH RESPECT TO ANY RESULTS
+TO BE OBTAINED FROM USE OR DISTRIBUTION OF THE LIST, ARE IMPLIED. 
+BY USING OR DISTRIBUTING THIS LIST, YOU AGREE THAT IN NO EVENT SHALL 
+THIS LICENSE HOLDER BE HELD LIABLE FOR ANY DAMAGES WHATSOEVER RESULTING 
+FROM ANY USE OR DISTRIBUTION OF THIS LIST, INCLUDING, WITHOUT LIMITATION, 
+ANY SPECIAL, CONSEQUENTIAL, INCIDENTAL OR OTHER DIRECT OR INDIRECT DAMAGES.
+
+Project: The pandas project  
+ * Home: https://pandas.pydata.org/   
+ * Github: https://github.com/pandas-dev/pandas   
+ * Copyright (c) 2008-2012, AQR Capital Management, LLC, Lambda Foundry, Inc. 
+    and PyData Development Team. All rights reserved.    
+ * License: BSD 3-Clause https://github.com/pandas-dev/pandas/blob/master/LICENSE
+
+Project: scikit-learn
+  * Home: https://scikit-learn.org/stable/  
+  * Github: https://github.com/scikit-learn/scikit-learn
+  * Copyright (c) 2007–2019 The scikit-learn developers. All rights reserved.   
+  * License: New BSD License https://github.com/scikit-learn/scikit-learn/blob/master/COPYING  
+
+Project: SciPy    
+  * Home: https://www.scipy.org/     
+  * Github: https://github.com/scipy/scipy    
+  * Copyright (c) 2003-2019 SciPy Developers. All rights reserved.    
+  * License: BSD 3-Clause https://github.com/scipy/scipy/blob/master/LICENSE.txt
 
