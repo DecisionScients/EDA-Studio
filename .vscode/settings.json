@@ -2,6 +2,7 @@
     "restructuredtext.confPath": "${workspaceFolder}\\docs",
     "restructuredtext.builtDocumentationPath": "c:\\Users\\John\\Documents\\Data Science\\Projects\\eda_studio\\docs\\_build",
     "python.pythonPath": "C:\\ProgramData\\Anaconda3\\python.exe",
+    "python.linting.pylintPath": "C:\\ProgramData\\Anaconda3\\Scripts\\pylint.exe",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true
 }

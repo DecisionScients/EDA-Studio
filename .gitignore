@@ -120,3 +120,6 @@ ENV/
 
 # Data Files
 /data
+
+# VS Code Stuff
+EDA-Studio.code-workspace

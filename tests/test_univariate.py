@@ -7,5 +7,11 @@ from test_setup import get_data
 from univariate import Univariate
 # Get Data
 df = get_data()
-analysis =  Univariate()
-
+analysis =  Univariate(df)
+analysis.describe()
+result = analysis.description
+#%%
+quant = result['quantitative']
+qual = result['qualitative']
+print(quant.info())
+print(qual.info())

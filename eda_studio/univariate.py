@@ -7,21 +7,21 @@
 #
 # Copyright (c) 2019, John James
 # All rights reserved.
-#region 
+#
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
-
+#
 # * Redistributions of source code must retain the above copyright notice, this
 #   list of conditions and the following disclaimer.
-
+#
 # * Redistributions in binary form must reproduce the above copyright notice, this
 #   list of conditions and the following disclaimer in the documentation and/or
 #   other materials provided with the distribution.
-
+#
 # * Neither the name of the copyright holder nor the names of its
 #   contributors may be used to endorse or promote products derived from this
 #   software without specific prior written permission.
-
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
@@ -31,8 +31,7 @@
 # DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
 # OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-# OF THE POSSIBILITY OF SUCH DAMAGE.
-#endregion 
+# OF THE POSSIBILITY OF SUCH DAMAGE. 
 
 """Module for conducting univariate exploratory data analysis in Python
 
@@ -43,6 +42,9 @@ numpy arrays.
 """
 import numpy as np
 import pandas as pd
+from scipy.stats import kurtosis, skew, sem, shapiro
+import warnings
+warnings.filterwarnings("ignore")
 
 class Univariate(object):
     """Conducts, stores and reports univariate exploratory data analysis.
@@ -61,13 +63,14 @@ class Univariate(object):
 
         Arguments:
         ----------
-            x (pandas DataFrame): Qualitative and or quantitative data to 
+            x (pandas Series or DataFrame): Qualitative and or quantitative data to 
                 be analyzed.
 
         """
         self.x = x
+        self.description = None
 
-    def _describe_qual(self, df, quantiles, include, exclude):
+    def _describe_qual(self, df, include, exclude):
         """Performs the describe function for qualitative variables
 
         This method performs the qualitative analysis on categorical 
@@ -78,29 +81,22 @@ class Univariate(object):
         Arguments:
         ----------
         df (DataFrame): Qualitative data to be analyzed
-        **kwargs
-            Arbitrary keyword arguments as follows:
-            
-            - ``quantiles``: (array-like): list-like of numbers, optional
-                The quantiles to include in the output. The values
-                should be between 0 and 1.  The default is 
-                ``[.25, .5, .75]``, which returns the 25th, 50th, and
-                75th quantiles.
-            - ``include``: (str or array-like): A string or an array-like specifying
-                the name(s) of the column(s) or the names of the data types
-                to include in the analysis. Valid data types include:
-                
-                * numpy.object 
-                * numpy.bool
+        
+        include: (str or array-like): A string or an array-like specifying
+        the name(s) of the column(s) or the names of the data types
+        to include in the analysis. Valid data types include:
+        
+        * numpy.object 
+        * numpy.bool
 
-                The default value is None, which means that all categorical
-                columns will be included in the analysis.
+        The default value is None, which means that all categorical
+        columns will be included in the analysis.
 
-            - ``exclude``: (str or array-like): A string or an array-like 
-                specifying the name(s) of the column(s) or data types to 
-                exclude from the analysis. See the list of valid data types
-                above. The default value is None, which means that nothing 
-                will be excluded. 
+        exclude: (str or array-like): A string or an array-like 
+        specifying the name(s) of the column(s) or data types to 
+        exclude from the analysis. See the list of valid data types
+        above. The default value is None, which means that nothing 
+        will be excluded. 
 
         Returns:
         --------
@@ -110,18 +106,135 @@ class Univariate(object):
         result = pd.DataFrame()
         cols = df.columns
         for col in cols:
-            d = pd.DataFrame(df[col].describe(percentile=quantiles, 
-                                              include=include,
+            d = pd.DataFrame(df[col].describe(include=include,
                                               exclude=exclude))
             d = d.T
             d['missing'] = df[col].isna().sum()
             result = result.append(d)
         return(result)
+
+    def _skew(self, x):
+        """Measures skewness of a distribution
+
+        The following rule of thumb is used to interpret skewness:
+
+        * If skewness is less than −1 or greater than +1, the distribution is highly skewed.  
+        * If skewness is between −1 and −½ or between +½ and +1, the distribution is moderately skewed.  
+        * If skewness is between −½ and +½, the distribution is approximately symmetric.   
+
+        Arguments:
+        ----------
+        x (Series, DataFrame): Data to be measured
+
+        Returns:
+        --------
+        Dictionary: Contains the measurement of skewness and the interpretation. 
+
+        """
+        result = {}
+        y = skew(x) 
+        sign = np.where(y<0, 'negative', 'positive')
+        if abs(y) > 1: 
+            skewed = 'high ' + str(sign) + ' skew'
+        elif abs(y) >= .5:
+            skewed = 'moderate' + str(sign) + ' skew'
+        else:
+            skewed = 'symmetric'
+
+        result['skew'] = y
+        result['skewed'] = skewed
+        return(result)
+
+    def _kurtosis(self, x):
+        """Measures kurtosis of a distribution
+
+        The following rule of thumb is used to interpret skewness:
+
+        * if kurtosis < -3: platykurtic
+        * if kurtosis < -2: likely platykurtic
+        * if kurtosis is between -2 and +2, inconclusive
+        * if kurtosis > 2: likely leptokurtic
+        * if kurtosis > 3: leptokurtic
         
+        Arguments:
+        ----------
+        x (Series, DataFrame): Data to be measured
+
+        Returns:
+        --------
+        Dictionary: Contains the measurement of kurtosis and the interpretation. 
+
+        """
+        result = {}
+        g = kurtosis(x) 
+        if g < -3:
+            kurtosic = 'platykurtic'
+        elif g < -2:
+            kurtosic = 'likely platykurtic'
+        elif g < 2:
+            kurtosic = 'inconclusive'
+        elif g < 3:
+            kurtosic = 'likely leptokurtic'
+        else:
+            kurtosic = 'leptokurtic'
+
+        result['kurtosis'] = g
+        result['kurtosic'] = kurtosic
+        return(result)        
+
+    def _describe_quant(self, df, quantiles, include, exclude, sig=0.05):
+        """Computes descriptive statistics for quantitative variables
+
+        Built upon the pandas.DataFrame.describe class, this method provides
+        descriptive statistics for a quantitative variable. The statistics include:
+
+            * number of missing values
+            * min, max, mean, mode and median   
+            * quantiles, defaults are [0.25, .50, 0.75]    
+            * standard deviation, standard error    
+            * kurtosis, skewness and normality
+
+        Arguments:
+        ----------
+            df(DataFrame): One column DataFrame to be analyzed
+            quantiles(float): The quantiles to be returned    
+            include(list-like): List of columns or data types to be included
+            exclude(list-like): List of columns or data types to be excluded
+            sig(float): The significance level for the normality test
+
+        Returns:
+        --------
+        DataFrame: Containing descriptive statistics.
+
+        """
+        
+        result = pd.DataFrame()
+        cols = df.columns
+        for col in cols:
+            d = pd.DataFrame(df[col].describe())
+            d = d.T
+
+            d['missing'] = df[col].isna().sum()
+
+            d['sd'] = np.std(df[col].notnull())
+            d['se'] = sem(df[col])
+
+            y = self._skew(df[col].notnull())
+            d['skew'] = y['skew']
+            d['skewed'] = y['skewed']
+
+            g = self._kurtosis(df[col].notnull())
+            d['kurtosis'] = g['kurtosis']
+            d['kurtosic'] = g['kurtosic']
+            
+            _, d['normality_p'] = shapiro(df[col].notnull())
+            d['normality'] = np.where(
+                d['normality_p'] < sig, "Reject H0", "Fail to Reject H0")        
+            result = result.append(d)
+        return result
 
 
-
-    def describe(self, quantiles=None, include=None, exclude=None):
+    def describe(self, quantiles=None, include=None, exclude=None, sig=0.05):
         """Descriptive statistics built upon the pandas.describe class.
 
         This method provides a summary and descriptive statistics for both
@@ -175,6 +288,8 @@ class Univariate(object):
                 analysis. See the list of valid data types above. The default 
                 value is None, which means that nothing will be excluded. 
 
+            sig (float): The level of significance for the normality test.
+
         Returns:
         --------
             Dictionary: Containing two DataFrames:  
@@ -191,28 +306,6 @@ class Univariate(object):
 
         Examples:
         ---------
-        Describe a numeric ``Series``.
-
-        >>> s = pd.Series([3, 42, 8, 5, 22, 13,79, 43, 2, 105, 6, 6])
-        >>> d = describe(s)
-        >>> d['quantitative'].T    # Transposed for viewing purposes
-        count     12.000000
-        mean      27.833333
-        std       33.587967
-        min        2.000000
-        25%        5.750000
-        50%       10.500000
-        75%       42.250000
-        max      105.000000
-        kurtosis 0.4411928295956846
-        kurtotic positive kurtosis
-        skew     1.3111792977843535   
-        skewed   positive skew
-
-        >>> d['qualitative'] 
-        None
-
-
         Describe a mixed datatype ``DataFrame``.
 
         >>> df = pd.DataFrame({'object': ['a','c', 'united', 'tofu', 'loathing',
@@ -268,18 +361,35 @@ class Univariate(object):
                 result['quantitative'] = self._describe_quant(self.x.to_frame(),
                                                               quantiles=quantiles, 
                                                               include=include,
-                                                              exclude=exclude)
+                                                              exclude=exclude,
+                                                              sig = sig)
             else:
                 result['qualitative'] = self._describe_qual(self.x.to_frame(),
-                                                            quantiles=quantiles, 
                                                             include=include,
                                                             exclude=exclude)
 
         else:
+            # Describe qualitative columns
             qual = self.x.select_dtypes([np.bool, np.object])
+            if qual.empty:
+                pass
+            else:
+                result['qualitative'] = self._describe_qual(df=qual, include=include,
+                                                    exclude=exclude)
 
+            # Describe quantitative columns
             quant = self.x.select_dtypes([np.number])
-            cols = self.x.columns
+            if quant.empty:
+                pass
+            else:
+                result['quantitative'] = self._describe_quant(df=quant, 
+                                                quantiles=quantiles, 
+                                                include=include,
+                                                exclude=exclude, sig=sig)
+        self.description = result
+
+        return(self)
+
 
 
 
