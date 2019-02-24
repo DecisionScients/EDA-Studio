@@ -42,7 +42,8 @@ numpy arrays.
 """
 import numpy as np
 import pandas as pd
-from scipy.stats import kurtosis, skew, sem, shapiro
+from scipy.stats import kurtosis, skew, sem, shapiro, mode
+from statistics import mean
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -70,7 +71,7 @@ class Univariate(object):
         self.x = x
         self.description = None
 
-    def _describe_qual(self, df, include, exclude):
+    def _describe_qual(self, df, include='all', exclude=None):
         """Performs the describe function for qualitative variables
 
         This method performs the qualitative analysis on categorical 
@@ -103,18 +104,20 @@ class Univariate(object):
             DataFrame: Contains count and frequency data. 
 
         """
-        result = pd.DataFrame()
-        cols = df.columns
-        for col in cols:
-            d = pd.DataFrame(df[col].describe(include=include,
-                                              exclude=exclude))
-            d = d.T
-            d['missing'] = df[col].isna().sum()
-            result = result.append(d)
-        return(result)
+        c = df.dtypes[df.dtypes=='object'].index.values
+        desc = df[c].describe(include=include, exclude=exclude)
+        
+        obs = pd.DataFrame({'n':np.repeat(df[c].shape[0],len(c))},index=c)
+        unique = pd.DataFrame({'Unique':df[c].apply(lambda x:len(x.unique()),axis=0)})
+        missing = pd.DataFrame({'Missing':df[c].isnull().sum()})
+        pct_missing = pd.DataFrame({'% Missing':df[c].isnull().sum()/df[c].shape[0]*100})                
+        top = pd.DataFrame({'Top': desc.loc['top', :]})
+        top_freq = pd.DataFrame({'Top Freq': desc.loc['freq', :]})
+        dq = pd.concat([obs, unique, missing, pct_missing, top, top_freq], axis=1)
+        return(dq)
 
-    def _skew(self, x):
-        """Measures skewness of a distribution
+    def _skew(self, y):
+        """Interprets skew of a distribution
 
         The following rule of thumb is used to interpret skewness:
 
@@ -124,31 +127,24 @@ class Univariate(object):
 
         Arguments:
         ----------
-        x (Series, DataFrame): Data to be measured
+        y (float): Measure of skewness
 
         Returns:
         --------
-        Dictionary: Contains the measurement of skewness and the interpretation. 
+        String: Contains the interpretation. 
 
         """
-        result = {}
-        y = skew(x) 
-        sign = np.where(y<0, 'negative', 'positive')
-        if abs(y) > 1: 
-            skewed = 'high ' + str(sign) + ' skew'
-        elif abs(y) >= .5:
-            skewed = 'moderate' + str(sign) + ' skew'
-        else:
-            skewed = 'symmetric'
+        skewed = np.where(y < -1, 'high negative skew',
+                     np.where(y <= -0.5, 'moderate negative skew',
+                     np.where(y < 0.5, 'symmetric',
+                     np.where(y < 1, 'moderate positive skew',
+                     'high positive skew'))))
+        return(skewed)
 
-        result['skew'] = y
-        result['skewed'] = skewed
-        return(result)
+    def _kurtosis(self, g):
+        """Interprets kurtosis of a distribution
 
-    def _kurtosis(self, x):
-        """Measures kurtosis of a distribution
-
-        The following rule of thumb is used to interpret skewness:
+        The following rule of thumb is used to interpret kurtosis:
 
         * if kurtosis < -3: platykurtic
         * if kurtosis < -2: likely platykurtic
@@ -158,31 +154,22 @@ class Univariate(object):
         
         Arguments:
         ----------
-        x (Series, DataFrame): Data to be measured
+        g (float): Measure of kurtosis
 
         Returns:
         --------
-        Dictionary: Contains the measurement of kurtosis and the interpretation. 
+        String: Contains the interpretation. 
 
         """
-        result = {}
-        g = kurtosis(x) 
-        if g < -3:
-            kurtosic = 'platykurtic'
-        elif g < -2:
-            kurtosic = 'likely platykurtic'
-        elif g < 2:
-            kurtosic = 'inconclusive'
-        elif g < 3:
-            kurtosic = 'likely leptokurtic'
-        else:
-            kurtosic = 'leptokurtic'
+        kurtosic = np.where(g < -3, 'platykurtic', 
+                    np.where(g < -2, 'likely platykurtic',
+                    np.where(g < 2, 'inconclusive',
+                    np.where(g < 3, 'likely leptokurtic',
+                    'leptokurtic'))))
 
-        result['kurtosis'] = g
-        result['kurtosic'] = kurtosic
-        return(result)        
+        return(kurtosic)        
 
-    def _describe_quant(self, df, quantiles, include, exclude, sig=0.05):
+    def _describe_quant(self, df, quantiles=None, include='all', exclude=None, sig=0.05):
         """Computes descriptive statistics for quantitative variables
 
         Built upon the pandas.DataFrame.describe class, this method provides
@@ -207,34 +194,45 @@ class Univariate(object):
         DataFrame: Containing descriptive statistics.
 
         """
+ 
+        d=df.dtypes[df.dtypes!='object'].index.values
+        df[d]=df[d].astype('float64')
+
+        obs = pd.DataFrame({'n':np.repeat(df[d].shape[0],len(d))},index=d)
+        unique = pd.DataFrame({'Unique':df[d].apply(lambda x:len(x.unique()),axis=0)})
+        missing = pd.DataFrame({'Missing':df[d].isnull().sum()})
+        pct_missing = pd.DataFrame({'% Missing':df[d].isnull().sum()/df[d].shape[0]*100})
+
+        center = pd.DataFrame({'Mean':df[d].mean()}, index=d)        
+        center['Mode'] = mode(df[d])[0].flatten()
+
+        q5 = pd.DataFrame({'q5':df[d].apply(lambda x:x.dropna().quantile(0.05))})
+        q10 = pd.DataFrame({'q10':df[d].apply(lambda x:x.dropna().quantile(0.10))})
+        q25 = pd.DataFrame({'q25':df[d].apply(lambda x:x.dropna().quantile(0.25))})
+        q50 = pd.DataFrame({'q50':df[d].apply(lambda x:x.dropna().quantile(0.50))})
+        q75 = pd.DataFrame({'q75':df[d].apply(lambda x:x.dropna().quantile(0.75))})
+        q95 = pd.DataFrame({'q95':df[d].apply(lambda x:x.dropna().quantile(0.95))})
+        q99 = pd.DataFrame({'q99':df[d].apply(lambda x:x.dropna().quantile(0.99))})
+
+        sd = pd.DataFrame({'SD':df[d].std()})
+        se = pd.DataFrame({'SE':df[d].sem()})
+
+        skew = pd.DataFrame({'Skew':df[d].skew(axis=0)})
+        skew['Skewed'] = self._skew(skew)
         
-        result = pd.DataFrame()
-        cols = df.columns
-        for col in cols:
-            d = pd.DataFrame(df[col].describe())
-            d = d.T
+        kurt = pd.DataFrame({'Kurtosis':df[d].kurtosis(axis=0)})
+        kurt['Kurtosic'] = self._kurtosis(kurt)
 
-            d['missing'] = df[col].isna().sum()
+        
+        normal = pd.DataFrame({'Normality p-Value':df[d].apply(lambda x:shapiro(x.dropna())[1])})
+        normal['Normality H_0'] = np.where(normal < sig, "Reject", "Do Not Reject")
 
-            d['sd'] = np.std(df[col].notnull())
-            d['se'] = sem(df[col])
+        dq = pd.concat([obs,unique,missing,pct_missing,center,q5,q10,q25,
+                        q50,q75,q95,q99,sd,se,skew,kurt,normal],
+                        axis=1)
+        return(dq)
 
-            y = self._skew(df[col].notnull())
-            d['skew'] = y['skew']
-            d['skewed'] = y['skewed']
-
-            g = self._kurtosis(df[col].notnull())
-            d['kurtosis'] = g['kurtosis']
-            d['kurtosic'] = g['kurtosic']
-            
-            _, d['normality_p'] = shapiro(df[col].notnull())
-            d['normality'] = np.where(
-                d['normality_p'] < sig, "Reject H0", "Fail to Reject H0")        
-            result = result.append(d)
-        return result
-
-
-    def describe(self, quantiles=None, include=None, exclude=None, sig=0.05):
+    def describe(self, quantiles=None, include='all', exclude=None, sig=0.05):
         """Descriptive statistics built upon the pandas.describe class.
 
         This method provides a summary and descriptive statistics for both
@@ -388,7 +386,46 @@ class Univariate(object):
                                                 exclude=exclude, sig=sig)
         self.description = result
 
-        return(self)
+        return(result)
+
+    def factor_describe(self, df, x, y, z=None):
+        """ Describes a quantitative variable y, by factors of x, and optional z
+
+        Splits a dataframe along factors of the categorical variable, x and by
+        an optional categorical variable z,  and returns descriptive statistics 
+        of y, by factor.
+
+        Arguments:
+        ----------
+            df (pd.DataFrame): Dataframe containing data
+            x (str): The name of the categorical variable
+            y (str): The name of the numeric variable
+            z (str): The name of an optional categorical variable
+
+        Returns:
+        --------
+        DataFrame: Descriptive statistics of y, by x and optionally by z.
+
+        """
+        df2 = pd.DataFrame()
+        if z:
+            gb = df[[x, y, z]].groupby([x, z])
+            groups = [gb.get_group(x) for x in gb.groups]
+            for g in groups:
+                g_y = pd.DataFrame({y:g[y]})
+                d = self._describe_quant(g_y)
+                d[x] = g[x].unique()
+                d[z] = g[z].unique()
+                df2 = df2.append(d)
+        else:
+            gb = df[[x,y]].groupby([x])
+            groups = [gb.get_group(x) for x in gb.groups]
+            for g in groups:
+                g_y = pd.DataFrame({y: g[y]})
+                d = self._describe_quant(g_y)
+                d[x] = g[x].unique()
+                df2 = df2.append(d)
+        return(df2)
 
 
 
